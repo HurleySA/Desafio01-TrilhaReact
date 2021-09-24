@@ -1,4 +1,5 @@
-import { useState } from 'react'
+
+import React, { useState } from 'react'
 
 import '../styles/tasklist.scss'
 
@@ -10,20 +11,56 @@ interface Task {
   isComplete: boolean;
 }
 
+
+
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [id, setId] = useState(1);
+
 
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if(newTaskTitle ) {
+      const newTask: Task = {
+        id: id,
+        title: newTaskTitle,
+        isComplete: false
+      }
+      setTasks([...tasks, newTask]);
+      setId(id => id + Math.ceil(Math.random()));
+      setNewTaskTitle('');
+      
+
+    }
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const newArray = tasks.map( task => {
+        if(task.id === id){
+          task.isComplete = !task.isComplete;
+        }
+        return task;
+      } )
+    setTasks([...newArray]);
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+
+    const newArray = tasks.filter( task =>(task.id !== id) )
+    setTasks([...newArray])
+
+  }
+
+  function handleKeyPress (event) {
+    if(event.key === 'Enter'){
+      handleCreateNewTask();
+   
+    }
+   
   }
 
   return (
@@ -36,6 +73,7 @@ export function TaskList() {
             type="text" 
             placeholder="Adicionar novo todo" 
             onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyPress={handleKeyPress}
             value={newTaskTitle}
           />
           <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
